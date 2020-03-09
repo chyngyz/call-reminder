@@ -1,61 +1,103 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Elevation, Dialog, Classes, Intent, RadioGroup, Radio } from "@blueprintjs/core";
-import AddNewContact from './AddNewContact'
+import { RadioGroup, Radio, Switch } from '@blueprintjs/core';
+import { TimePicker, TimePrecision } from "@blueprintjs/datetime";
+
+const DEFAULT_CONTACT_LABELS = {
+  'mother': 'Апакем',
+  'father': 'Атакем',
+  'sister': 'Карындашым/Эжем',
+  'brother': 'Иним/Байкем'
+}
+
+const INTERVAL_LABELS = {
+  once: 'Бир жолу',
+  daily: 'Кун сайын',
+  weekly: 'Жума сайын',
+  monthly: 'Ай сайын'
+}
+
+const DEFAULT_CONTACTS = Object.keys(DEFAULT_CONTACT_LABELS)
 
 function App() {
-  const [contacts, setContacts] = useState([
-    {
-      name: 'Chyngyz',
-      frequency: 'daily',
-      reminderTime: '20:13',
-      date: new Date()
-    }
-  ])
+  const [activeContacts, setActiveContacts] = useState(DEFAULT_CONTACTS.reduce((contactMap, contact) => {
+    contactMap[contact] = true
+    return contactMap
+  }, {}))
+  const [reminderData, setReminderData] = useState({
+    frequency: 'daily',
+    time: new Date()
+  })
 
   useEffect(() => {
     const savedContacts = window.localStorage.getItem('contacts')
     if (savedContacts && savedContacts.length) {
-      setContacts(savedContacts)
+      setActiveContacts(savedContacts)
     }
   }, [])
 
-  const handleSave = (contact) => {
-    setContacts([
-      ...contacts,
-      contact
-    ])
+  const handleContactChange = (contact, isChecked) => {
+    setActiveContacts({
+      ...activeContacts,
+      [contact]: isChecked
+    })
+  }
+
+  const handleScheduleChange = (field, value) => {
+    setReminderData({
+      ...reminderData,
+      [field]: value
+    })
   }
 
   return (
     <div className="container">
       <header className="header">
-        <h1>Call Reminder</h1>
+        <h1>Телефон чалуу</h1>
       </header>
       <main>
-        {contacts.map(contact => (
-          <Card elevation={Elevation.TWO} className="contact-card">
-            <h2>Call <i>{contact.name}</i></h2>
-            <p>Your call schedule is <b>{contact.frequency}</b> at <b>{contact.reminderTime}</b></p>
 
-            <div className="contact-card__actions">
-              <Button
-                text="Called"
-                intent={Intent.PRIMARY}
-              />
+        <div className="block">
+          <h3>Кимге чалуу</h3>
+          {DEFAULT_CONTACTS.map(contact => (
+            <Switch
+              key={contact}
+              onChange={event => handleContactChange(contact, event.target.checked)}
+              labelElement={DEFAULT_CONTACT_LABELS[contact]}
+              checked={activeContacts[contact]}
+              large
+            />
+          ))}
+        </div>
 
-              <Button
-                text="Missed"
-                intent={Intent.DANGER}
+        <div className="block">
+          <h3>Чалуунун колому</h3>
+          <RadioGroup
+            onChange={event => handleScheduleChange('frequency', event.target.value)}
+            selectedValue={reminderData.frequency}
+          >
+            {Object.keys(INTERVAL_LABELS).map(item => (
+              <Radio
+                key={item}
+                label={INTERVAL_LABELS[item]}
+                value={item}
               />
-            </div>
-          </Card>
-        ))}
+            ))}
+          </RadioGroup>
+        </div>
+
+        <div className="block">
+          <h3>Качан чалуу</h3>
+          {INTERVAL_LABELS[reminderData.frequency]} саат: 
+          <TimePicker
+            onChange={value => handleScheduleChange('time', value)}
+            precision={TimePrecision.MINUTE}
+            selectAllOnFocus={false}
+            showArrowButtons
+            useAmPm={false}
+            value={reminderData.time}
+          />
+        </div>
       </main>
-      <footer>
-        <AddNewContact
-          onSave={handleSave}
-        />
-      </footer>
     </div>
   );
 }
