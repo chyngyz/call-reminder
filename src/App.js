@@ -44,14 +44,14 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (window.Android && window.Android.syncContactSchedule) {
+    if (Android && Android.syncContactSchedule) {
       const selectedContacts = DEFAULT_CONTACTS.filter(item => activeContacts[item])
       const data = {
         contacts: selectedContacts.map(item => DEFAULT_CONTACT_LABELS[item]),
         ...reminderData
       }
 
-      window.Android.syncContactSchedule(JSON.stringify(data))
+      Android.syncContactSchedule(JSON.stringify(data))
       window.localStorage.setItem('contacts', JSON.stringify(selectedContacts))
     }
   }, [reminderData, activeContacts])
