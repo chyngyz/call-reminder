@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { InputSwitch } from 'primereact/inputswitch';
 import { RadioButton } from 'primereact/radiobutton';
-import { Calendar } from 'primereact/calendar';
 
 import 'primereact/resources/themes/nova-light/theme.css'
 import 'primereact/resources/primereact.min.css'
@@ -66,6 +65,7 @@ function App() {
   }
 
   const handleScheduleChange = (field, value) => {
+    console.log(field, value)
     setReminderData({
       ...reminderData,
       [field]: value
@@ -116,15 +116,12 @@ function App() {
           <h3>Эскертуунун убакты</h3>
           <div className="row">
             {INTERVAL_LABELS[reminderData.frequency]} саат: 
-            <Calendar
+            <input
+              className="date-time-picker"
+              type="datetime-local"
+              name="date"
+              onChange={(e) => handleScheduleChange('time', e.target.value)}
               value={reminderData.time}
-              onChange={(e) => handleScheduleChange('time', e.value)}
-              showSeconds={false}
-              baseZIndex={100}
-              showTime
-              touchUI
-              hideOnDateTimeSelect
-              readOnlyInput
             />
           </div>
         </div>
