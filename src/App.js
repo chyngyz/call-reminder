@@ -121,6 +121,7 @@ function App() {
               showTime
               touchUI
               hideOnDateTimeSelect
+              readOnlyInput
             />
           </div>
         </div>
