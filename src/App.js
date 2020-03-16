@@ -32,6 +32,7 @@ function App() {
     frequency: 'daily',
     time: new Date()
   })
+  const [isLoadedFromStore, setIsLoadedFromStore] = useState(false)
 
   useEffect(() => {
     const savedContacts = window.localStorage.getItem('contacts')
@@ -40,11 +41,12 @@ function App() {
         contactMap[contact] = true
         return contactMap
       }, {}))
+      setIsLoadedFromStore(true)
     }
   }, [])
 
   useEffect(() => {
-    if (window.Android && window.Android.syncContactSchedule) {
+    if (window.Android && window.Android.syncContactSchedule && isLoadedFromStore) {
       const selectedContacts = DEFAULT_CONTACTS.filter(item => activeContacts[item])
       const data = {
         contacts: selectedContacts.map(item => DEFAULT_CONTACT_LABELS[item]),
@@ -54,7 +56,7 @@ function App() {
       window.Android.syncContactSchedule(JSON.stringify(data))
       window.localStorage.setItem('contacts', JSON.stringify(selectedContacts))
     }
-  }, [reminderData, activeContacts])
+  }, [reminderData, activeContacts, isLoadedFromStore])
 
   const handleContactChange = (contact, isChecked) => {
     setActiveContacts({
