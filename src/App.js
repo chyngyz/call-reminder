@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { RadioGroup, Radio, Switch } from '@blueprintjs/core';
-import { TimePicker, TimePrecision } from "@blueprintjs/datetime";
+import { InputSwitch } from 'primereact/inputswitch';
+import { RadioButton } from 'primereact/radiobutton';
+import { Calendar } from 'primereact/calendar';
+
+import 'primereact/resources/themes/nova-light/theme.css'
+import 'primereact/resources/primereact.min.css'
+import 'primeicons/primeicons.css'
 
 const DEFAULT_CONTACT_LABELS = {
   'mother': 'Апакем',
@@ -31,9 +36,25 @@ function App() {
   useEffect(() => {
     const savedContacts = window.localStorage.getItem('contacts')
     if (savedContacts && savedContacts.length) {
-      setActiveContacts(savedContacts)
+      setActiveContacts(JSON.parse(savedContacts).reduce((contactMap, contact) => {
+        contactMap[contact] = true
+        return contactMap
+      }, {}))
     }
   }, [])
+
+  useEffect(() => {
+    if (window.syncContactSchedule) {
+      const selectedContacts = DEFAULT_CONTACTS.filter(item => activeContacts[item])
+      const data = {
+        contacts: selectedContacts.map(item => DEFAULT_CONTACT_LABELS[item]),
+        ...reminderData
+      }
+
+      window.localStorage.setItem('contacts', JSON.stringify(selectedContacts))
+      window.syncContactSchedule(data)
+    }
+  }, [reminderData, activeContacts])
 
   const handleContactChange = (contact, isChecked) => {
     setActiveContacts({
@@ -52,50 +73,56 @@ function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1>Телефон чалуу</h1>
+        <h1>Жакынынды унутпа</h1>
       </header>
       <main>
 
         <div className="block">
-          <h3>Кимге чалуу</h3>
+          <h3>Жакындарым</h3>
           {DEFAULT_CONTACTS.map(contact => (
-            <Switch
-              key={contact}
-              onChange={event => handleContactChange(contact, event.target.checked)}
-              labelElement={DEFAULT_CONTACT_LABELS[contact]}
-              checked={activeContacts[contact]}
-              large
-            />
+            <div className="row" key={contact}>
+              <InputSwitch
+                inputId={contact}
+                checked={activeContacts[contact]}
+                onChange={event => handleContactChange(contact, event.value)}
+              />
+              <label htmlFor={contact} className="p-radiobutton-label">{DEFAULT_CONTACT_LABELS[contact]}</label>
+              
+            </div>
           ))}
         </div>
 
         <div className="block">
-          <h3>Чалуунун колому</h3>
-          <RadioGroup
-            onChange={event => handleScheduleChange('frequency', event.target.value)}
-            selectedValue={reminderData.frequency}
-          >
-            {Object.keys(INTERVAL_LABELS).map(item => (
-              <Radio
+          <h3>Эскертуу</h3>
+          {Object.keys(INTERVAL_LABELS).map(item => (
+            <div className="row" key={item}>
+              <RadioButton
                 key={item}
-                label={INTERVAL_LABELS[item]}
                 value={item}
+                name={item}
+                inputId={item}
+                onChange={event => handleScheduleChange('frequency', event.value)}
+                checked={reminderData.frequency === item}
               />
-            ))}
-          </RadioGroup>
+              <label htmlFor={item} className="p-radiobutton-label">{INTERVAL_LABELS[item]}</label>
+            </div>
+          ))}
+          
         </div>
 
         <div className="block">
-          <h3>Качан чалуу</h3>
-          {INTERVAL_LABELS[reminderData.frequency]} саат: 
-          <TimePicker
-            onChange={value => handleScheduleChange('time', value)}
-            precision={TimePrecision.MINUTE}
-            selectAllOnFocus={false}
-            showArrowButtons
-            useAmPm={false}
-            value={reminderData.time}
-          />
+          <h3>Эскертуунун убакты</h3>
+          <div className="row">
+            {INTERVAL_LABELS[reminderData.frequency]} саат: 
+            <Calendar
+              value={reminderData.time}
+              onChange={(e) => handleScheduleChange('time', e.value)}
+              showSeconds={false}
+              showTime
+              touchUI
+              hideOnDateTimeSelect
+            />
+          </div>
         </div>
       </main>
     </div>

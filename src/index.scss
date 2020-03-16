@@ -1,11 +1,13 @@
-@import '../node_modules/normalize.css/normalize.css';
-@import '../node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css';
-@import '../node_modules/@blueprintjs/core/lib/css/blueprint.css';
-@import '../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css';
-
 body {
   padding: 20px;
   box-sizing: border-box;
+  font-family: 'PT Sans Narrow', sans-serif;
+  font-weight: 300;
+  color: #636b79;
+}
+
+h1, h2, h3 {
+  color: #263042;
 }
 
 
@@ -21,4 +23,14 @@ header, footer {
 
 .block {
   margin-bottom: 60px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .p-calendar {
+    margin-left: 20px;
+  }
 }
