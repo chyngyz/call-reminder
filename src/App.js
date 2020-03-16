@@ -44,14 +44,14 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (window.syncContactSchedule) {
+    if (window.Android && window.Android.syncContactSchedule) {
       const selectedContacts = DEFAULT_CONTACTS.filter(item => activeContacts[item])
       const data = {
         contacts: selectedContacts.map(item => DEFAULT_CONTACT_LABELS[item]),
         ...reminderData
       }
 
-      window.syncContactSchedule(JSON.stringify(data))
+      window.Android.syncContactSchedule(JSON.stringify(data))
       window.localStorage.setItem('contacts', JSON.stringify(selectedContacts))
     }
   }, [reminderData, activeContacts])
@@ -118,6 +118,7 @@ function App() {
               value={reminderData.time}
               onChange={(e) => handleScheduleChange('time', e.value)}
               showSeconds={false}
+              baseZIndex={100}
               showTime
               touchUI
               hideOnDateTimeSelect
