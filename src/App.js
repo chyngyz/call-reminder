@@ -51,8 +51,8 @@ function App() {
         ...reminderData
       }
 
+      window.syncContactSchedule(JSON.stringify(data))
       window.localStorage.setItem('contacts', JSON.stringify(selectedContacts))
-      window.syncContactSchedule(data)
     }
   }, [reminderData, activeContacts])
 
